@@ -23,6 +23,18 @@ export default function TicketTable() {
     ).toFixed(1);
   };
 
+  const openTabs = () => {
+    const ticketsToCommit = Object.entries(tasks)
+      .filter(([rt, { toCommit }]) => toCommit)
+      .map(([rt, { timeS, comment }]) => ({ rt, timeS, comment }));
+
+    ticketsToCommit.forEach(({ rt, timeS, comment}) => {
+      const timeMin = (timeS / 60).toFixed();
+      const url = `https://rt.cosylab.com/Ticket/Update.html?Action=Respond;id=${rt}&UpdateTimeWorked=${timeMin}&UpdateContent=${comment}`;
+      window.open(url, "_blank");
+    });
+  };
+
   return (
     <>
       <Table striped bordered hover>
@@ -93,7 +105,7 @@ export default function TicketTable() {
           </tr>
         </tbody>
       </Table>
-      <Button>Enter time</Button>
+      <Button onClick={openTabs}>Enter time</Button>
     </>
   );
 }
