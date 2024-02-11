@@ -1,4 +1,4 @@
-import { Table, Form, Button } from "react-bootstrap";
+import { Table, Form, Button, InputGroup } from "react-bootstrap";
 import { CheckSquareFill, DashSquareFill } from "react-bootstrap-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../state/store";
@@ -73,8 +73,10 @@ export default function TicketTable() {
                 <td>{data.description}</td>
                 <td>{(data.timeS / 60).toFixed()} min</td>
                 <td>
+                  <InputGroup className="mb-3">
                   <Form.Control
                     type="text"
+                    aria-describedby="basic-addon2"
                     value={data.comment}
                     onChange={(e) =>
                       dispatch(
@@ -85,6 +87,17 @@ export default function TicketTable() {
                       )
                     }
                   />
+                  <Button variant="outline-secondary" id="button-addon2" onClick={() => {
+                      dispatch(
+                        setTaskComment({
+                          rt: parseInt(rt),
+                          comment: data.description
+                        })
+                      )
+                    }}>
+                    Title
+                  </Button>
+                  </InputGroup>
                 </td>
                 <td>
                   <Form.Check
