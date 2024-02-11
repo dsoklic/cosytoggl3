@@ -30,7 +30,7 @@ function App() {
     <div className="App">
       <TogglTokenModal />
       <div className="sidebar">
-        <h1 className="title">Cosytoggl3</h1>
+        <h1 className="title">Cosytoggl 3</h1>
 
         <div className="text-center">
           <Button className="m-1" onClick={() => dispatch(setThisWeek())}>This week</Button>
