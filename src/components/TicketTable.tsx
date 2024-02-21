@@ -3,11 +3,11 @@ import { CheckSquareFill, DashSquareFill } from "react-bootstrap-icons";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../state/store";
 import {
-  AllTicketData,
   markAllToCommit,
   setTaskComment,
   toggleToCommit,
 } from "../state/tasks";
+import { AllTicketData } from "../model/types";
 
 export default function TicketTable() {
   const dispatch = useDispatch<AppDispatch>();
@@ -28,7 +28,7 @@ export default function TicketTable() {
       .filter(([rt, { toCommit }]) => toCommit)
       .map(([rt, { timeS, comment }]) => ({ rt, timeS, comment }));
 
-    ticketsToCommit.forEach(({ rt, timeS, comment}) => {
+    ticketsToCommit.forEach(({ rt, timeS, comment }) => {
       const timeMin = (timeS / 60).toFixed();
       const url = `https://rt.cosylab.com/Ticket/Update.html?Action=Respond;id=${rt}&UpdateTimeWorked=${timeMin}&UpdateContent=${comment}`;
       window.open(url, "_blank");
@@ -74,29 +74,33 @@ export default function TicketTable() {
                 <td>{(data.timeS / 60).toFixed()} min</td>
                 <td>
                   <InputGroup className="mb-3">
-                  <Form.Control
-                    type="text"
-                    aria-describedby="basic-addon2"
-                    value={data.comment}
-                    onChange={(e) =>
-                      dispatch(
-                        setTaskComment({
-                          rt: parseInt(rt),
-                          comment: e.target.value,
-                        })
-                      )
-                    }
-                  />
-                  <Button variant="outline-secondary" id="button-addon2" onClick={() => {
-                      dispatch(
-                        setTaskComment({
-                          rt: parseInt(rt),
-                          comment: data.description
-                        })
-                      )
-                    }}>
-                    Title
-                  </Button>
+                    <Form.Control
+                      type="text"
+                      aria-describedby="basic-addon2"
+                      value={data.comment}
+                      onChange={(e) =>
+                        dispatch(
+                          setTaskComment({
+                            rt: parseInt(rt),
+                            comment: e.target.value,
+                          })
+                        )
+                      }
+                    />
+                    <Button
+                      variant="outline-secondary"
+                      id="button-addon2"
+                      onClick={() => {
+                        dispatch(
+                          setTaskComment({
+                            rt: parseInt(rt),
+                            comment: data.description,
+                          })
+                        );
+                      }}
+                    >
+                      Title
+                    </Button>
                   </InputGroup>
                 </td>
                 <td>

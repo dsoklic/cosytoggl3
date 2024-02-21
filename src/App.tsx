@@ -5,8 +5,8 @@ import { getTasks, setThisMonth, setThisWeek, setTokenModalShown } from "./state
 import { AppDispatch, RootState } from "./state/store";
 
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Button, Spinner } from "react-bootstrap";
-import DatePicker from "./components/datePicker";
+import { Button } from "react-bootstrap";
+import DatePicker from "./components/DatePicker";
 import TicketTable from "./components/TicketTable";
 import FixMappingsTable from "./components/FixMappingsTable";
 import TogglTokenModal from "./components/TogglTokenModal";

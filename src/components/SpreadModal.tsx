@@ -2,9 +2,10 @@ import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../state/store";
-import { getTasks, setSpreadModalShown } from "../state/tasks";
+import { spreadTasksOverTickets } from "../state/tasks";
 import { Form, Table } from "react-bootstrap";
 import { useEffect, useState } from "react";
+import { SpreadDesiredAmount } from "../model/types";
 
 function SpreadModal() {
   const dispatch = useDispatch<AppDispatch>();
@@ -18,7 +19,7 @@ function SpreadModal() {
 
   const [selectedTask, setSelectedTask] = useState("0");
 
-  const getInitialTimeAmounts = () =>
+  const getInitialTimeAmounts = (): SpreadDesiredAmount[] =>
     Object.entries(mappedTasks).map(([k, v]) => ({
       rt: k,
       amountMin: 0,
@@ -63,15 +64,14 @@ function SpreadModal() {
   };
 
   const onSave = () => {
-    console.log("need to enter");
-    console.log(timeAmounts);
+    const desiredAmounts = timeAmounts
+      .filter((x) => x.amountMin > 0);
+    const taskToOverwrite = unmappedTasks[selectedTask ?? ""];
 
-    const targetMappedTasks = timeAmounts
-      .filter((x) => x.amountMin > 0)
-      .map((x) => ({ ...x, ...mappedTasks[parseInt(x.rt)] }));
-    const sourceTask = unmappedTasks[selectedTask ?? ""];
+    console.log('desiredAmounts', desiredAmounts);
+    console.log('taskToOverwrite', taskToOverwrite)
     
-
+    dispatch(spreadTasksOverTickets(desiredAmounts));
     // dispatch(getTasks());
     // dispatch(setSpreadModalShown(false));
   };

@@ -10,41 +10,12 @@ import {
 } from "date-fns";
 import { sendGetRequest, sendPatchRequest } from "../utils/leakyBucketClient";
 import { getTicketInfo } from "../utils/utils";
-
-export type SingleRTTicketData = {
-  description: string;
-  timeS: number;
-  comment: string;
-  toCommit: boolean;
-  workspace: number;
-};
-export type AllTicketData = { [rt: number]: SingleRTTicketData };
-
-export type UpdateTaskData = {
-  ids: number[];
-  totalTimeS: number;
-  desc: string;
-  workspace: number;
-  newRt: string;
-  };
-
-interface TasksState {
-  mappedTasks: AllTicketData;
-  unmappedTasks: {
-    [id: string]: {
-      ids: number[];
-      totalTimeS: number;
-      desc: string;
-      workspace: number;
-    };
-  };
-  selectedDateRange: {
-    from: string | undefined;
-    to: string | undefined;
-  };
-  tokenModalShown: boolean;
-  spreadModalShown: boolean;
-}
+import {
+  TasksState,
+  UpdateTaskData,
+  SpreadDesiredAmount,
+  SingleRTTicketData,
+} from "../model/types";
 
 const initialState: TasksState = {
   mappedTasks: {},
@@ -68,7 +39,11 @@ export const getTasks = createAsyncThunk(
     const togglToken = localStorage.getItem("token");
 
     if (togglToken === null) return [];
-    if (state.tasks.selectedDateRange.from === undefined || state.tasks.selectedDateRange.to === undefined) return [];
+    if (
+      state.tasks.selectedDateRange.from === undefined ||
+      state.tasks.selectedDateRange.to === undefined
+    )
+      return [];
 
     const { data, status } = await sendGetRequest<TaskData[]>("/time_entries", {
       baseURL: "https://api.track.toggl.com/api/v9/me/",
@@ -90,7 +65,7 @@ export const updateTasks = createAsyncThunk<boolean, UpdateTaskData[]>(
   "Tasks/updateTasks",
   async (arg) => {
     const togglToken = localStorage.getItem("token");
-    
+
     const results = arg.map(async (task) => {
       const { data, status } = await sendPatchRequest<TaskData[]>(
         `https://api.track.toggl.com/api/v9/workspaces/${
@@ -118,6 +93,13 @@ export const updateTasks = createAsyncThunk<boolean, UpdateTaskData[]>(
   }
 );
 
+export const spreadTasksOverTickets = createAsyncThunk<
+  boolean,
+  SpreadDesiredAmount[]
+>("Tasks/spreadTasksOverTickets", async (arg) => {
+  return true;
+});
+
 const extractMappedTasks = (state: TasksState, taskData: TaskData[]) => {
   const parsedData = taskData.reduce<{
     [rt: number]: SingleRTTicketData;
@@ -141,17 +123,7 @@ const extractMappedTasks = (state: TasksState, taskData: TaskData[]) => {
     return acc;
   }, {});
 
-  if (Object.keys(state.mappedTasks).length === 0) {
-    state.mappedTasks = parsedData;
-  } else {
-    Object.entries(parsedData).forEach(([rt, data]) => {
-      if (rt in state.mappedTasks) {
-        state.mappedTasks[parseInt(rt)].timeS += data.timeS;
-      } else {
-        state.mappedTasks[parseInt(rt)] = data;
-      }
-    });
-  }
+  state.mappedTasks = parsedData;
 };
 
 const extractUnmappedTasks = (state: TasksState, taskData: TaskData[]) => {
@@ -161,6 +133,7 @@ const extractUnmappedTasks = (state: TasksState, taskData: TaskData[]) => {
       totalTimeS: number;
       desc: string;
       workspace: number;
+      data: TaskData[];
     };
   }>((acc, cur) => {
     const { rt, desc } = getTicketInfo(cur.description);
@@ -173,10 +146,12 @@ const extractUnmappedTasks = (state: TasksState, taskData: TaskData[]) => {
         totalTimeS: cur.duration,
         desc: desc,
         workspace: cur.workspace_id,
+        data: [cur],
       };
     } else {
       acc[desc].ids.push(cur.id);
       acc[desc].totalTimeS += cur.duration;
+      acc[desc].data.push(cur);
     }
 
     return acc;
@@ -190,6 +165,7 @@ const extractUnmappedTasks = (state: TasksState, taskData: TaskData[]) => {
       totalTimeS: cur.totalTimeS,
       desc: cur.desc,
       workspace: cur.workspace,
+      data: cur.data,
     };
 
     return acc;
@@ -234,11 +210,11 @@ const TasksSlice = createSlice({
       state.unmappedTasks[action.payload.id].desc = action.payload.new;
     },
     setTokenModalShown: (state, action: PayloadAction<boolean>) => {
-        state.tokenModalShown = action.payload;
+      state.tokenModalShown = action.payload;
     },
     setSpreadModalShown: (state, action: PayloadAction<boolean>) => {
       state.spreadModalShown = action.payload;
-  },
+    },
     setThisWeek: (state) => {
       state.selectedDateRange = {
         from: startOfISOWeek(new Date()).toISOString(),
