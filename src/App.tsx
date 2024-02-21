@@ -5,11 +5,12 @@ import { getTasks, setThisMonth, setThisWeek, setTokenModalShown } from "./state
 import { AppDispatch, RootState } from "./state/store";
 
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Button } from "react-bootstrap";
+import { Button, Spinner } from "react-bootstrap";
 import DatePicker from "./components/datePicker";
 import TicketTable from "./components/TicketTable";
 import FixMappingsTable from "./components/FixMappingsTable";
 import TogglTokenModal from "./components/TogglTokenModal";
+import SpreadModal from "./components/SpreadModal";
 
 function App() {
   const dispatch = useDispatch<AppDispatch>();
@@ -29,6 +30,7 @@ function App() {
   return (
     <div className="App">
       <TogglTokenModal />
+      <SpreadModal />
       <div className="sidebar">
         <h1 className="title">Cosytoggl 3</h1>
 
@@ -41,6 +43,8 @@ function App() {
       </div>
 
       <div className="main-content">
+        <Button onClick={() => dispatch(getTasks())}>Refresh</Button>
+        <Button onClick={() => dispatch(getTasks())}>Spread task</Button>
         <h2>Unmapped tasks</h2>
         <FixMappingsTable />
         <br />

@@ -26,7 +26,7 @@ export type UpdateTaskData = {
   desc: string;
   workspace: number;
   newRt: string;
-};
+  };
 
 interface TasksState {
   mappedTasks: AllTicketData;
@@ -43,6 +43,7 @@ interface TasksState {
     to: string | undefined;
   };
   tokenModalShown: boolean;
+  spreadModalShown: boolean;
 }
 
 const initialState: TasksState = {
@@ -53,6 +54,7 @@ const initialState: TasksState = {
     to: endOfMonth(new Date()).toISOString(),
   },
   tokenModalShown: false,
+  spreadModalShown: true,
 };
 
 const toBase64 = (input: string) => {
@@ -234,6 +236,9 @@ const TasksSlice = createSlice({
     setTokenModalShown: (state, action: PayloadAction<boolean>) => {
         state.tokenModalShown = action.payload;
     },
+    setSpreadModalShown: (state, action: PayloadAction<boolean>) => {
+      state.spreadModalShown = action.payload;
+  },
     setThisWeek: (state) => {
       state.selectedDateRange = {
         from: startOfISOWeek(new Date()).toISOString(),
@@ -267,6 +272,7 @@ export const {
   setTaskComment,
   changeUnmappedTaskDescription,
   setTokenModalShown,
+  setSpreadModalShown,
   setThisWeek,
   setThisMonth,
 } = TasksSlice.actions;
