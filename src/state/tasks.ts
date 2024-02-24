@@ -109,17 +109,6 @@ export const spreadTasksOverTickets = createAsyncThunk<
   async ({ desiredAmounts, taskToOverwrite }) => {
     const togglToken = localStorage.getItem("token");
 
-    // Delete the task that needs to be overwritten
-    const deleteTasks = taskToOverwrite.ids.map((id) =>
-      sendDeleteRequest(`/${taskToOverwrite.workspace}/time_entries/${id}`, {
-        baseURL: "https://api.track.toggl.com/api/v9/workspaces",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Basic " + toBase64(togglToken + ":api_token"),
-        },
-      })
-    );
-
     // Add the new tasks
     const addTasks = desiredAmounts.map((amount) =>
       sendPostRequest(
@@ -141,8 +130,26 @@ export const spreadTasksOverTickets = createAsyncThunk<
       )
     );
 
-    const promises = [...deleteTasks, ...addTasks];
-    return promises.every(async (p) => (await p).status === 200);
+    const allAddingSuccess = addTasks.every(
+      async (p) => (await p).status === 200
+    );
+
+    if (!allAddingSuccess) {
+      console.error("Adding failure");
+      return false;
+    }
+    // Delete the task that needs to be overwritten
+    const deleteTasks = taskToOverwrite.ids.map((id) =>
+      sendDeleteRequest(`/${taskToOverwrite.workspace}/time_entries/${id}`, {
+        baseURL: "https://api.track.toggl.com/api/v9/workspaces",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Basic " + toBase64(togglToken + ":api_token"),
+        },
+      })
+    );
+
+    return deleteTasks.every(async (p) => (await p).status === 200);
   }
 );
 
@@ -287,25 +294,25 @@ const TasksSlice = createSlice({
         const taskData = action.payload;
         extractMappedTasks(state, taskData);
         extractUnmappedTasks(state, taskData);
-        state.notificationMessage = 'Refreshed tasks';
-        state.notificationTitle = 'Tasks';
+        state.notificationMessage = "Refreshed tasks";
+        state.notificationTitle = "Tasks";
         state.notificationShown = true;
       })
       .addCase(updateTasks.fulfilled, (state) => {
         // TODO dispatch get tasks
-        state.notificationMessage = 'Updated tasks';
-        state.notificationTitle = 'Tasks';
+        state.notificationMessage = "Updated tasks";
+        state.notificationTitle = "Tasks";
         state.notificationShown = true;
       })
       .addCase(spreadTasksOverTickets.fulfilled, (state, action) => {
-        state.notificationTitle = 'Tasks';
+        state.notificationTitle = "Tasks";
 
         if (action.payload) {
-          state.notificationMessage = 'Spread tasks successfully';
+          state.notificationMessage = "Spread tasks successfully";
         } else {
-          state.notificationMessage = 'Spreading tasks failed';
+          state.notificationMessage = "Spreading tasks failed";
         }
-        
+
         state.notificationShown = true;
       });
   },
