@@ -12,11 +12,13 @@ import FixMappingsTable from "./components/FixMappingsTable";
 import TogglTokenModal from "./components/TogglTokenModal";
 import SpreadModal from "./components/SpreadModal";
 import NotificationToast from "./components/NotificationToast";
+import TablePlaceholder from "./components/TablePlaceholder";
 
 function App() {
   const dispatch = useDispatch<AppDispatch>();
 
   const selectedTime = useSelector((state: RootState) => state.tasks.selectedDateRange);
+  const tasksLoading = useSelector((state: RootState) => state.tasks.tasksLoading);
 
   useEffect(() => {
     dispatch(getTasks());
@@ -48,10 +50,10 @@ function App() {
         <Button onClick={() => dispatch(getTasks())}>Refresh</Button>
         <Button className="m-1" onClick={() => dispatch(setSpreadModalShown(true))}>Spread task</Button>
         <h2 className="mt-2">Unmapped tasks</h2>
-        <FixMappingsTable />
+        {tasksLoading ? <TablePlaceholder /> : <FixMappingsTable /> }
         <br />
         <h2 className="mt-4">Task list</h2>
-        <TicketTable />
+        {tasksLoading ? <TablePlaceholder /> : <TicketTable /> }
       </div>
     </div>
   );

@@ -23,6 +23,7 @@ import {
 } from "../model/types";
 
 const initialState: TasksState = {
+  tasksLoading: true,
   mappedTasks: {},
   unmappedTasks: {},
   selectedDateRange: {
@@ -290,13 +291,15 @@ const TasksSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      .addCase(getTasks.pending, (state) => {
+        state.tasksLoading = true;
+      })
       .addCase(getTasks.fulfilled, (state, action) => {
+        state.tasksLoading = false;
+
         const taskData = action.payload;
         extractMappedTasks(state, taskData);
         extractUnmappedTasks(state, taskData);
-        state.notificationMessage = "Refreshed tasks";
-        state.notificationTitle = "Tasks";
-        state.notificationShown = true;
       })
       .addCase(updateTasks.fulfilled, (state) => {
         // TODO dispatch get tasks

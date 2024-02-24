@@ -28,6 +28,7 @@ export type UnmappedTasks = {
 };
 
 export type TasksState = {
+  tasksLoading: boolean;
   mappedTasks: AllTicketData;
   unmappedTasks: UnmappedTasks;
   selectedDateRange: {
