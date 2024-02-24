@@ -11,6 +11,7 @@ import TicketTable from "./components/TicketTable";
 import FixMappingsTable from "./components/FixMappingsTable";
 import TogglTokenModal from "./components/TogglTokenModal";
 import SpreadModal from "./components/SpreadModal";
+import NotificationToast from "./components/NotificationToast";
 
 function App() {
   const dispatch = useDispatch<AppDispatch>();
@@ -29,6 +30,7 @@ function App() {
 
   return (
     <div className="App">
+      <NotificationToast />
       <TogglTokenModal />
       <SpreadModal />
       <div className="sidebar">

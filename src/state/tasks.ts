@@ -31,6 +31,9 @@ const initialState: TasksState = {
   },
   tokenModalShown: false,
   spreadModalShown: false,
+  notificationShown: false,
+  notificationTitle: "Title",
+  notificationMessage: "",
 };
 
 const toBase64 = (input: string) => {
@@ -270,6 +273,13 @@ const TasksSlice = createSlice({
         to: endOfMonth(new Date()).toISOString(),
       };
     },
+    showNotification: (state, action: PayloadAction<string>) => {
+      state.notificationMessage = action.payload;
+      state.notificationShown = true;
+    },
+    hideNotification: (state) => {
+      state.notificationShown = false;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -277,9 +287,26 @@ const TasksSlice = createSlice({
         const taskData = action.payload;
         extractMappedTasks(state, taskData);
         extractUnmappedTasks(state, taskData);
+        state.notificationMessage = 'Refreshed tasks';
+        state.notificationTitle = 'Tasks';
+        state.notificationShown = true;
       })
-      .addCase(updateTasks.fulfilled, (state, action) => {
+      .addCase(updateTasks.fulfilled, (state) => {
         // TODO dispatch get tasks
+        state.notificationMessage = 'Updated tasks';
+        state.notificationTitle = 'Tasks';
+        state.notificationShown = true;
+      })
+      .addCase(spreadTasksOverTickets.fulfilled, (state, action) => {
+        state.notificationTitle = 'Tasks';
+
+        if (action.payload) {
+          state.notificationMessage = 'Spread tasks successfully';
+        } else {
+          state.notificationMessage = 'Spreading tasks failed';
+        }
+        
+        state.notificationShown = true;
       });
   },
 });
@@ -294,6 +321,8 @@ export const {
   setSpreadModalShown,
   setThisWeek,
   setThisMonth,
+  showNotification,
+  hideNotification,
 } = TasksSlice.actions;
 
 export default TasksSlice.reducer;

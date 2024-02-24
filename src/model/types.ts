@@ -36,6 +36,9 @@ export type TasksState = {
   };
   tokenModalShown: boolean;
   spreadModalShown: boolean;
+  notificationShown: boolean;
+  notificationTitle: string;
+  notificationMessage: string;
 };
 
 export type SpreadDesiredAmount = {
