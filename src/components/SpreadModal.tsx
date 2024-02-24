@@ -75,8 +75,7 @@ function SpreadModal() {
     console.log("taskToOverwrite", taskToOverwrite);
 
     dispatch(spreadTasksOverTickets({ desiredAmounts, taskToOverwrite }));
-    // dispatch(getTasks());
-    // dispatch(setSpreadModalShown(false));
+    dispatch(setSpreadModalShown(false));
   };
 
   const handleClose = () => dispatch(setSpreadModalShown(false));
