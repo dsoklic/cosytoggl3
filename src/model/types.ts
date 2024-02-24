@@ -40,6 +40,12 @@ export type TasksState = {
 
 export type SpreadDesiredAmount = {
   rt: string;
+  description: string;
   amountMin: number;
   amountPercentage: number;
 };
+
+export type SpreadTasksOverTicketsReducerInput = {
+  desiredAmounts: SpreadDesiredAmount[];
+  taskToOverwrite: UnmappedTasks[number]
+}

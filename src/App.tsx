@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import "./App.css";
 import { useDispatch, useSelector } from "react-redux";
-import { getTasks, setThisMonth, setThisWeek, setTokenModalShown } from "./state/tasks";
+import { getTasks, setSpreadModalShown, setThisMonth, setThisWeek, setTokenModalShown } from "./state/tasks";
 import { AppDispatch, RootState } from "./state/store";
 
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -44,7 +44,7 @@ function App() {
 
       <div className="main-content">
         <Button onClick={() => dispatch(getTasks())}>Refresh</Button>
-        <Button onClick={() => dispatch(getTasks())}>Spread task</Button>
+        <Button className="m-1" onClick={() => dispatch(setSpreadModalShown(true))}>Spread task</Button>
         <h2>Unmapped tasks</h2>
         <FixMappingsTable />
         <br />

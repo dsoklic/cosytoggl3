@@ -8,13 +8,18 @@ import {
   startOfISOWeek,
   endOfISOWeek,
 } from "date-fns";
-import { sendGetRequest, sendPatchRequest } from "../utils/leakyBucketClient";
+import {
+  sendDeleteRequest,
+  sendGetRequest,
+  sendPatchRequest,
+  sendPostRequest,
+} from "../utils/leakyBucketClient";
 import { getTicketInfo } from "../utils/utils";
 import {
   TasksState,
   UpdateTaskData,
-  SpreadDesiredAmount,
   SingleRTTicketData,
+  SpreadTasksOverTicketsReducerInput,
 } from "../model/types";
 
 const initialState: TasksState = {
@@ -25,7 +30,7 @@ const initialState: TasksState = {
     to: endOfMonth(new Date()).toISOString(),
   },
   tokenModalShown: false,
-  spreadModalShown: true,
+  spreadModalShown: false,
 };
 
 const toBase64 = (input: string) => {
@@ -95,10 +100,48 @@ export const updateTasks = createAsyncThunk<boolean, UpdateTaskData[]>(
 
 export const spreadTasksOverTickets = createAsyncThunk<
   boolean,
-  SpreadDesiredAmount[]
->("Tasks/spreadTasksOverTickets", async (arg) => {
-  return true;
-});
+  SpreadTasksOverTicketsReducerInput
+>(
+  "Tasks/spreadTasksOverTickets",
+  async ({ desiredAmounts, taskToOverwrite }) => {
+    const togglToken = localStorage.getItem("token");
+
+    // Delete the task that needs to be overwritten
+    const deleteTasks = taskToOverwrite.ids.map((id) =>
+      sendDeleteRequest(`/${taskToOverwrite.workspace}/time_entries/${id}`, {
+        baseURL: "https://api.track.toggl.com/api/v9/workspaces",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Basic " + toBase64(togglToken + ":api_token"),
+        },
+      })
+    );
+
+    // Add the new tasks
+    const addTasks = desiredAmounts.map((amount) =>
+      sendPostRequest(
+        `/${taskToOverwrite.workspace}/time_entries`,
+        {
+          created_with: "Cosytoggl3",
+          description: `RT#${amount.rt}: ${amount.description}`,
+          duration: Math.floor(amount.amountMin * 60),
+          start: new Date().toISOString(),
+          workspace_id: taskToOverwrite.workspace,
+        },
+        {
+          baseURL: "https://api.track.toggl.com/api/v9/workspaces",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Basic " + toBase64(togglToken + ":api_token"),
+          },
+        }
+      )
+    );
+
+    const promises = [...deleteTasks, ...addTasks];
+    return promises.every(async (p) => (await p).status === 200);
+  }
+);
 
 const extractMappedTasks = (state: TasksState, taskData: TaskData[]) => {
   const parsedData = taskData.reduce<{

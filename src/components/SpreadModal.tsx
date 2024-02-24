@@ -2,9 +2,9 @@ import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../state/store";
-import { spreadTasksOverTickets } from "../state/tasks";
-import { Form, Table } from "react-bootstrap";
-import { useEffect, useState } from "react";
+import { setSpreadModalShown, spreadTasksOverTickets } from "../state/tasks";
+import { Form, InputGroup, Table } from "react-bootstrap";
+import { useCallback, useEffect, useState } from "react";
 import { SpreadDesiredAmount } from "../model/types";
 
 function SpreadModal() {
@@ -19,18 +19,22 @@ function SpreadModal() {
 
   const [selectedTask, setSelectedTask] = useState("0");
 
-  const getInitialTimeAmounts = (): SpreadDesiredAmount[] =>
-    Object.entries(mappedTasks).map(([k, v]) => ({
-      rt: k,
-      amountMin: 0,
-      amountPercentage: 0,
-    }));
+  const getInitialTimeAmounts = useCallback(
+    (): SpreadDesiredAmount[] =>
+      Object.entries(mappedTasks).map(([rt, { description }]) => ({
+        rt,
+        description,
+        amountMin: 0,
+        amountPercentage: 0,
+      })),
+    [mappedTasks]
+  );
 
   const [timeAmounts, setTimeAmounts] = useState(getInitialTimeAmounts());
 
   useEffect(() => {
     setTimeAmounts(getInitialTimeAmounts());
-  }, [mappedTasks]);
+  }, [getInitialTimeAmounts, mappedTasks]);
 
   const setPercentage = (rt: string, amount: string | undefined) => {
     const numberVal = parseInt(amount || "0") / 100;
@@ -64,20 +68,21 @@ function SpreadModal() {
   };
 
   const onSave = () => {
-    const desiredAmounts = timeAmounts
-      .filter((x) => x.amountMin > 0);
+    const desiredAmounts = timeAmounts.filter((x) => x.amountMin > 0);
     const taskToOverwrite = unmappedTasks[selectedTask ?? ""];
 
-    console.log('desiredAmounts', desiredAmounts);
-    console.log('taskToOverwrite', taskToOverwrite)
-    
-    dispatch(spreadTasksOverTickets(desiredAmounts));
+    console.log("desiredAmounts", desiredAmounts);
+    console.log("taskToOverwrite", taskToOverwrite);
+
+    dispatch(spreadTasksOverTickets({ desiredAmounts, taskToOverwrite }));
     // dispatch(getTasks());
     // dispatch(setSpreadModalShown(false));
   };
 
+  const handleClose = () => dispatch(setSpreadModalShown(false));
+
   return (
-    <Modal show={show}>
+    <Modal show={show} onHide={handleClose}>
       <Modal.Header closeButton>
         <Modal.Title>Spread task over tickets</Modal.Title>
       </Modal.Header>
@@ -121,17 +126,27 @@ function SpreadModal() {
                   <td>{rt}</td>
                   <td>{data.description}</td>
                   <td>
-                    <Form.Control
-                      type="test"
-                      value={
-                        timeAmounts
-                          .find((x) => x.rt === rt)
-                          ?.amountPercentage.toFixed() ?? 0
-                      }
-                      onChange={(e) => setPercentage(rt, e.target.value)}
-                      id={`inputPercent-${rt}`}
-                      disabled={selectedTask === "0"}
-                    />
+                    <InputGroup className="mb-3">
+                      <Form.Control
+                        type="test"
+                        value={
+                          timeAmounts
+                            .find((x) => x.rt === rt)
+                            ?.amountPercentage.toFixed() ?? 0
+                        }
+                        onChange={(e) => setPercentage(rt, e.target.value)}
+                        id={`inputPercent-${rt}`}
+                        disabled={selectedTask === "0"}
+                      />
+                      <Button
+                        variant="outline-secondary"
+                        id="button-addon2"
+                        disabled={selectedTask === "0"}
+                        onClick={() => setPercentage(rt, "100")}
+                      >
+                        💯
+                      </Button>
+                    </InputGroup>
                   </td>
                   <td>
                     <Form.Control
