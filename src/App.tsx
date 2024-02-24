@@ -47,10 +47,10 @@ function App() {
       <div className="main-content">
         <Button onClick={() => dispatch(getTasks())}>Refresh</Button>
         <Button className="m-1" onClick={() => dispatch(setSpreadModalShown(true))}>Spread task</Button>
-        <h2>Unmapped tasks</h2>
+        <h2 className="mt-2">Unmapped tasks</h2>
         <FixMappingsTable />
         <br />
-        <h2>Task list</h2>
+        <h2 className="mt-4">Task list</h2>
         <TicketTable />
       </div>
     </div>
