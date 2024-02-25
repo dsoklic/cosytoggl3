@@ -4,8 +4,17 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "../state/store";
 import { setSpreadModalShown, spreadTasksOverTickets } from "../state/tasks";
 import { Form, InputGroup, Table } from "react-bootstrap";
-import { useCallback, useEffect, useState } from "react";
-import { SpreadDesiredAmount } from "../model/types";
+import { useEffect, useState } from "react";
+import { AllTicketData, SpreadDesiredAmount } from "../model/types";
+
+const getInitialTimeAmounts = 
+  (mappedTasks: AllTicketData): SpreadDesiredAmount[] =>
+    Object.entries(mappedTasks).map(([rt, { description }]) => ({
+      rt,
+      description,
+      amountMin: 0,
+      amountPercentage: 0,
+    }));
 
 function SpreadModal() {
   const dispatch = useDispatch<AppDispatch>();
@@ -19,22 +28,11 @@ function SpreadModal() {
 
   const [selectedTask, setSelectedTask] = useState("0");
 
-  const getInitialTimeAmounts = useCallback(
-    (): SpreadDesiredAmount[] =>
-      Object.entries(mappedTasks).map(([rt, { description }]) => ({
-        rt,
-        description,
-        amountMin: 0,
-        amountPercentage: 0,
-      })),
-    [mappedTasks]
-  );
-
-  const [timeAmounts, setTimeAmounts] = useState(getInitialTimeAmounts());
+  const [timeAmounts, setTimeAmounts] = useState(getInitialTimeAmounts(mappedTasks));
 
   useEffect(() => {
-    setTimeAmounts(getInitialTimeAmounts());
-  }, [getInitialTimeAmounts, mappedTasks]);
+    setTimeAmounts(getInitialTimeAmounts(mappedTasks));
+  }, [mappedTasks]);
 
   const setPercentage = (rt: string, amount: string | undefined) => {
     const numberVal = parseInt(amount || "0") / 100;
@@ -70,9 +68,6 @@ function SpreadModal() {
   const onSave = () => {
     const desiredAmounts = timeAmounts.filter((x) => x.amountMin > 0);
     const taskToOverwrite = unmappedTasks[selectedTask ?? ""];
-
-    console.log("desiredAmounts", desiredAmounts);
-    console.log("taskToOverwrite", taskToOverwrite);
 
     dispatch(spreadTasksOverTickets({ desiredAmounts, taskToOverwrite }));
     dispatch(setSpreadModalShown(false));

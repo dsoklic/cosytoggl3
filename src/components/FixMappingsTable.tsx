@@ -26,8 +26,6 @@ export default function FixMappingsTable() {
       }))
       .filter((x) => x.newRt);
 
-    console.log(data);
-
     dispatch(updateTasks(data));
   };
 

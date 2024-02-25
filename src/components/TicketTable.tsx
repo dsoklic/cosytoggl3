@@ -9,19 +9,19 @@ import {
 } from "../state/tasks";
 import { AllTicketData } from "../model/types";
 
+const getTotalTimeInHours = (data: AllTicketData) => {
+  return (
+    Object.values(data)
+      .map((x) => x.timeS)
+      .reduce((acc, cur) => acc + cur, 0) /
+    (60 * 60)
+  ).toFixed(1);
+};
+
 export default function TicketTable() {
   const dispatch = useDispatch<AppDispatch>();
 
   const tasks = useSelector((state: RootState) => state.tasks.mappedTasks);
-
-  const getTotalTimeInHours = (data: AllTicketData) => {
-    return (
-      Object.values(data)
-        .map((x) => x.timeS)
-        .reduce((acc, cur) => acc + cur, 0) /
-      (60 * 60)
-    ).toFixed(1);
-  };
 
   const openTabs = () => {
     const ticketsToCommit = Object.entries(tasks)
@@ -66,6 +66,7 @@ export default function TicketTable() {
                   <a
                     href={"https://rt.cosylab.com/Ticket/Display.html?id=" + rt}
                     target="_blank"
+                    rel="noreferrer"
                   >
                     {rt}
                   </a>
