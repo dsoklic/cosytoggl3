@@ -297,7 +297,8 @@ const TasksSlice = createSlice({
       .addCase(getTasks.fulfilled, (state, action) => {
         state.tasksLoading = false;
 
-        const taskData = action.payload;
+        // Filter out tasks with negative duration, which indicates running tasks
+        const taskData = action.payload.filter((x) => x.duration >= 0);
         extractMappedTasks(state, taskData);
         extractUnmappedTasks(state, taskData);
       })
