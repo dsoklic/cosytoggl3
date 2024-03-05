@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/cosytoggl3/static/css/main.3d54a604.css",
+    "main.js": "/cosytoggl3/static/js/main.f113b230.js",
+    "static/js/592.89f6f5cf.chunk.js": "/cosytoggl3/static/js/592.89f6f5cf.chunk.js",
+    "index.html": "/cosytoggl3/index.html",
+    "main.3d54a604.css.map": "/cosytoggl3/static/css/main.3d54a604.css.map",
+    "main.f113b230.js.map": "/cosytoggl3/static/js/main.f113b230.js.map",
+    "592.89f6f5cf.chunk.js.map": "/cosytoggl3/static/js/592.89f6f5cf.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.3d54a604.css",
+    "static/js/main.f113b230.js"
+  ]
+}
