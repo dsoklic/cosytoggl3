@@ -168,7 +168,7 @@ const extractMappedTasks = (state: TasksState, taskData: TaskData[]) => {
           description: desc,
           timeS: cur.duration,
           comment: "",
-          toCommit: false,
+          toCommit: true, // All tasks are selected by default
           workspace: cur.workspace_id,
         };
       }
