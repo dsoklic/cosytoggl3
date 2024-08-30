@@ -59,7 +59,9 @@ export default function TicketTable() {
           </tr>
         </thead>
         <tbody>
-          {Object.entries(tasks).map(([rt, data], index) => {
+          {Object.entries(tasks)
+                 .sort((a, b) => b[1].timeS - a[1].timeS)
+                 .map(([rt, data]) => {
             return (
               <tr key={rt}>
                 <td>
