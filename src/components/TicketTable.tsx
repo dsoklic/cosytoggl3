@@ -15,8 +15,12 @@ const getTotalTimeInHours = (data: AllTicketData) => {
       .map((x) => x.timeS)
       .reduce((acc, cur) => acc + cur, 0) /
     (60 * 60)
-  ).toFixed(1);
+  );
 };
+
+const timePercentage = (timeInS: number, totalTimeH: number) => {
+  return ((timeInS / 3600) / totalTimeH) * 100;
+}
 
 export default function TicketTable() {
   const dispatch = useDispatch<AppDispatch>();
@@ -35,6 +39,8 @@ export default function TicketTable() {
     });
   };
 
+  const totalTime = getTotalTimeInHours(tasks);
+
   return (
     <>
       <Table striped bordered hover>
@@ -43,6 +49,7 @@ export default function TicketTable() {
             <th>RT#</th>
             <th>Name</th>
             <th>Time</th>
+            <th>Percentage</th>
             <th>Comment</th>
             <th>
               <a href="#" className="link-dark">
@@ -74,7 +81,8 @@ export default function TicketTable() {
                   </a>
                 </td>
                 <td>{data.description}</td>
-                <td>{(data.timeS / 60).toFixed()} min</td>
+                <td>{(data.timeS / 60).toFixed()} min | {(data.timeS / 3600).toFixed()} h</td>
+                <td>{timePercentage(data.timeS, totalTime).toFixed()} %</td>
                 <td>
                   <InputGroup className="mb-3">
                     <Form.Control
@@ -119,7 +127,8 @@ export default function TicketTable() {
 
           <tr className="total-row">
             <td colSpan={2}>Total</td>
-            <td>{getTotalTimeInHours(tasks)} h</td>
+            <td>{totalTime.toFixed(1)} h</td>
+            <td></td>
             <td></td>
             <td></td>
           </tr>
